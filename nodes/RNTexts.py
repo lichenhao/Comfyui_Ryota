@@ -4,6 +4,7 @@ from PIL import Image,ImageFont,ImageDraw,ImageColor
 import matplotlib.font_manager as fm
 import logging
 import os
+import folder_paths
 
 font_cache ={}
 font_names = []
@@ -137,11 +138,36 @@ class TxtFileLoader:
         
         res = []
         for fp in iter(filepaths):
-            print(f"got file path {fp}")
             file = open(file=fp, mode='r', encoding=encoding)
             c = file.read()
             try:
                 res.append(c)
             finally:
                 file.close()
-        return tuple(res)
+
+        return (str.join('\r\n', res),)
+
+@RegisterNode(CATEGORY_NAME, isOutNode=True, returns=("STRING",))
+class SaveTxtFile:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "content": ("STRING", {"forceInput":True,}),
+                "filename": ("STRING", {"default": "file.txt"}),
+                "encoding": ("STRING", {"default": "utf-8"}),
+                
+            }
+        }
+    @classmethod
+    def execute(self, content:str, filename:str, encoding:str,):
+        fullpath = os.path.join(folder_paths.get_output_directory(), f'./{filename}')
+        file = open(fullpath, mode='w', encoding=encoding)
+        if (file.writable() is False):
+            return Exception(f"file {file} is not writable")
+        
+        try:
+            file.write(content)
+        finally:
+            file.close()
+        return (content,)
