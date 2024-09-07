@@ -1,7 +1,9 @@
-from ..utils.Register import RegisterNode#, RegisterSwitchNode, RegisterSwitchNodeByTypesOnly
+from ..utils.Register import RegisterNode
 from ..utils.Utils import any
 
-@RegisterNode("Switch Inputs",)
+CATEGORY_NAME="Switch Inputs"
+
+@RegisterNode(CATEGORY_NAME,returns=("CLIP","MODEL",))
 class SwitchModelClip:
     @classmethod
     def INPUT_TYPES(s):
@@ -11,14 +13,13 @@ class SwitchModelClip:
                 "CLIP":("CLIP",),
             }
         }
-    RETURN_TYPES=("CLIP","MODEL",)
-    
+
     @classmethod
     def execute(self, MODEL, CLIP, ):
         return (CLIP,MODEL,)
 
 
-@RegisterNode("Switch Inputs",)
+@RegisterNode(CATEGORY_NAME, returns=(any,any,))
 class SwitchAnyInputs:
     @classmethod
     def INPUT_TYPES(s):
@@ -28,14 +29,13 @@ class SwitchAnyInputs:
                 "value2":(any,),
             }
         }
-    RETURN_TYPES=(any,any,)
     
     @classmethod
     def execute(self, value1, value2, ):
         return (value2, value1, )
 
 
-@RegisterNode("Reroute Inputs",)
+@RegisterNode("Reroute Inputs", returns=(any,any,))
 class Reroute2:
     @classmethod
     def INPUT_TYPES(s):
@@ -45,13 +45,13 @@ class Reroute2:
                 "value2":(any,),
             }
         }
-    RETURN_TYPES=(any,any,)
+
     @classmethod
     def execute(self, value1, value2,):
         return (value1,value2,)
     
 
-@RegisterNode("Reroute Inputs",)
+@RegisterNode("Reroute Inputs", returns=(any,any,any,))
 class Reroute3:
     @classmethod
     def INPUT_TYPES(s):
@@ -62,7 +62,6 @@ class Reroute3:
                 "value3":(any,),
             }
         }
-    RETURN_TYPES=(any,any,any,)
     @classmethod
     def execute(self, value1, value2, value3,):
         return (value1,value2,value3,)

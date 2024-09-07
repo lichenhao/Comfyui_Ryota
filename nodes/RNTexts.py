@@ -4,10 +4,10 @@ from PIL import Image,ImageFont,ImageDraw,ImageColor
 import matplotlib.font_manager as fm
 import logging
 import os
-# import textwrap
 
 font_cache ={}
 font_names = []
+CATEGORY_NAME='Texts'
 
 def get_system_fonts():
     fonts = fm.findSystemFonts(fontpaths=None, fontext='ttf') 
@@ -22,10 +22,8 @@ def get_system_fonts():
 
 get_system_fonts()
 
-@RegisterNode("RN Texts", )
+@RegisterNode(CATEGORY_NAME, returns=("STRING",))
 class CombineTexts:
-    
-    RETURN_TYPES=("STRING",)
 
     @classmethod
     def INPUT_TYPES(s):
@@ -48,10 +46,8 @@ class CombineTexts:
         return (str.join(seperator, list(set(t3))),)
  
 
-@RegisterNode("RN Texts")
+@RegisterNode(CATEGORY_NAME, returns=("STRING",))
 class FontLoader:
-
-    RETURN_TYPES=("STRING",)
 
     @classmethod
     def INPUT_TYPES(s):
@@ -73,10 +69,8 @@ class FontLoader:
         return {"ui":{"text": fpath}, "result":(fpath,)}
 
 
-@RegisterNode("RN Texts")
+@RegisterNode(CATEGORY_NAME, returns=("IMAGE",))
 class DrawText:
-
-    RETURN_TYPES=("IMAGE",)
 
     @classmethod
     def INPUT_TYPES(s):
@@ -112,3 +106,42 @@ class DrawText:
         out = pil2tensor(cvs)
 
         return (out,)
+
+
+
+@RegisterNode(CATEGORY_NAME, returns=("STRING",))
+class TxtFileLoader:
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "file_path":("STRING", {"forceInput": False, "default": ""}),
+                "encoding": ("STRING", {"forceInput": False, "default": "utf-8"}),
+            }
+        }
+    @classmethod
+    def execute(self, file_path:str, encoding:str = "utf-8"):
+        logging.debug(f'get file path {file_path} charset {encoding}')
+        if (os.path.exists(file_path) is False):
+            return Exception(f"file path {file_path} not exists")
+        
+        filepaths = []
+        if(os.path.isdir(file_path) is False):
+            filepaths.append(file_path)
+        else:
+            for filename in os.listdir(file_path):
+                filepaths.append(os.path.join(f"{file_path}/{filename}"))
+
+        filepaths.sort()
+        
+        res = []
+        for fp in iter(filepaths):
+            print(f"got file path {fp}")
+            file = open(file=fp, mode='r', encoding=encoding)
+            c = file.read()
+            try:
+                res.append(c)
+            finally:
+                file.close()
+        return tuple(res)
